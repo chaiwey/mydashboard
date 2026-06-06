@@ -1,0 +1,64 @@
+{
+  "nav": {
+    "allTasks": "All Tasks",
+    "categories": "Categories",
+    "manageCategories": "Manage Categories",
+    "signOut": "Sign out"
+  },
+  "auth": {
+    "welcome": "Welcome back",
+    "emailPrompt": "Enter your email to receive a sign-in link.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Send sign-in link",
+    "sending": "Sending...",
+    "checkEmail": "Check your email",
+    "linkSent": "A sign-in link has been sent to your email address. Click the link to sign in."
+  },
+  "todo": {
+    "newTask": "New task",
+    "noTasks": "No tasks yet",
+    "noTasksHint": "Create your first task to get started.",
+    "completed": "Completed",
+    "allTasks": "All Tasks",
+    "create": "Create",
+    "update": "Update",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "titleLabel": "Title",
+    "descriptionLabel": "Description",
+    "dueDateLabel": "Due date",
+    "categoryLabel": "Category",
+    "noCategory": "No category",
+    "editTask": "Edit task",
+    "newTaskTitle": "New task"
+  },
+  "notifications": {
+    "enableReminders": "Enable reminders to get notified before tasks are due.",
+    "enable": "Enable",
+    "enabling": "Enabling...",
+    "dismiss": "Dismiss"
+  },
+  "categories": {
+    "title": "Categories",
+    "newCategory": "New category",
+    "yourCategories": "Your categories",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Math class",
+    "colorLabel": "Color",
+    "create": "Create category",
+    "creating": "Creating...",
+    "noCategories": "No categories yet.",
+    "delete": "Delete",
+    "confirmDelete": "Confirm delete",
+    "cancel": "Cancel",
+    "tasks": "tasks",
+    "task": "task"
+  },
+  "days": {
+    "overdue": "{n}d overdue",
+    "today": "Due today",
+    "oneDay": "1 day left",
+    "nDays": "{n} days left"
+  }
+}

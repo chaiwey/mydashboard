@@ -1,0 +1,64 @@
+{
+  "nav": {
+    "allTasks": "所有任务",
+    "categories": "分类",
+    "manageCategories": "管理分类",
+    "signOut": "退出登录"
+  },
+  "auth": {
+    "welcome": "欢迎回来",
+    "emailPrompt": "输入邮箱，接收登录链接。",
+    "emailLabel": "邮箱地址",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "发送登录链接",
+    "sending": "发送中...",
+    "checkEmail": "请查看邮箱",
+    "linkSent": "登录链接已发送到您的邮箱，请点击链接登录。"
+  },
+  "todo": {
+    "newTask": "新建任务",
+    "noTasks": "暂无任务",
+    "noTasksHint": "创建第一个任务开始使用。",
+    "completed": "已完成",
+    "allTasks": "所有任务",
+    "create": "创建",
+    "update": "更新",
+    "cancel": "取消",
+    "saving": "保存中...",
+    "titleLabel": "标题",
+    "descriptionLabel": "描述",
+    "dueDateLabel": "截止日期",
+    "categoryLabel": "分类",
+    "noCategory": "无分类",
+    "editTask": "编辑任务",
+    "newTaskTitle": "新建任务"
+  },
+  "notifications": {
+    "enableReminders": "开启提醒，在任务截止前收到通知。",
+    "enable": "开启",
+    "enabling": "开启中...",
+    "dismiss": "忽略"
+  },
+  "categories": {
+    "title": "分类",
+    "newCategory": "新建分类",
+    "yourCategories": "我的分类",
+    "nameLabel": "名称",
+    "namePlaceholder": "例如：数学课",
+    "colorLabel": "颜色",
+    "create": "创建分类",
+    "creating": "创建中...",
+    "noCategories": "暂无分类。",
+    "delete": "删除",
+    "confirmDelete": "确认删除",
+    "cancel": "取消",
+    "tasks": "个任务",
+    "task": "个任务"
+  },
+  "days": {
+    "overdue": "已逾期 {n} 天",
+    "today": "今日截止",
+    "oneDay": "剩余 1 天",
+    "nDays": "剩余 {n} 天"
+  }
+}
