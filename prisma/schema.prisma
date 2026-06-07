@@ -17,6 +17,8 @@ model User {
   categories        Category[]
   todos             Todo[]
   pushSubscriptions PushSubscription[]
+  journalCategories JournalCategory[]
+  journalEntries    JournalEntry[]
   createdAt         DateTime             @default(now())
 }
 
@@ -88,6 +90,29 @@ model PushSubscription {
   auth      String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+}
+
+model JournalCategory {
+  id        String         @id @default(cuid())
+  name      String
+  color     String
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entries   JournalEntry[]
+  createdAt DateTime       @default(now())
+}
+
+model JournalEntry {
+  id         String           @id @default(cuid())
+  title      String
+  body       String           @db.Text
+  entryDate  DateTime
+  userId     String
+  categoryId String?
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category   JournalCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 }
 
 model NotificationSchedule {

@@ -9,6 +9,7 @@ type Todo = {
   id: string;
   title: string;
   description: string | null;
+  kind: string;
   dueDate: Date | null;
   completed: boolean;
   category: { id: string; name: string; color: string } | null;
