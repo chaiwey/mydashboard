@@ -2,9 +2,12 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { scheduleNotifications } from "@/lib/notifications";
 
+const todoKind = z.enum(["task", "exam"]);
+
 const todoInput = z.object({
   title: z.string().min(1).max(200),
   description: z.string().max(1000).optional(),
+  kind: todoKind.optional(),
   dueDate: z.date().optional(),
   categoryId: z.string().optional(),
 });
@@ -13,6 +16,7 @@ export const todoRouter = createTRPCRouter({
   list: protectedProcedure
     .input(z.object({
       categoryId: z.string().optional(),
+      kind: todoKind.optional(),
       completed: z.boolean().optional(),
     }).optional())
     .query(async ({ ctx, input }) => {
@@ -20,6 +24,7 @@ export const todoRouter = createTRPCRouter({
         where: {
           userId: ctx.session.user.id,
           ...(input?.categoryId ? { categoryId: input.categoryId } : {}),
+          ...(input?.kind ? { kind: input.kind } : {}),
           ...(input?.completed !== undefined ? { completed: input.completed } : {}),
         },
         include: { category: true },
@@ -31,7 +36,7 @@ export const todoRouter = createTRPCRouter({
     .input(todoInput)
     .mutation(async ({ ctx, input }) => {
       const todo = await ctx.db.todo.create({
-        data: { ...input, userId: ctx.session.user.id },
+        data: { ...input, kind: input.kind ?? "task", userId: ctx.session.user.id },
         include: { category: true },
       });
       await scheduleNotifications({ id: todo.id, userId: todo.userId, dueDate: todo.dueDate });

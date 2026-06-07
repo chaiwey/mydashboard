@@ -68,6 +68,7 @@ model Todo {
   id                    String                 @id @default(cuid())
   title                 String
   description           String?
+  kind                  String                 @default("task")
   dueDate               DateTime?
   completed             Boolean                @default(false)
   userId                String
