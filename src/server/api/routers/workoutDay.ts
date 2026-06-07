@@ -7,6 +7,13 @@ function utcDate(year: number, month: number, day: number) {
 
 const workoutTypeEnum = z.enum(["push", "pull", "legs", "cardio", "rest", "other"]);
 
+const sessionsInclude = {
+  sessions: {
+    include: { exercises: { orderBy: { order: "asc" as const } } },
+    orderBy: { createdAt: "asc" as const },
+  },
+} as const;
+
 export const workoutDayRouter = createTRPCRouter({
   listWeek: protectedProcedure
     .input(z.object({ year: z.number(), month: z.number(), day: z.number() }))
@@ -16,7 +23,7 @@ export const workoutDayRouter = createTRPCRouter({
       const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
       return ctx.db.workoutDay.findMany({
         where: { userId: ctx.session.user.id, date: { gte: weekStart, lt: weekEnd } },
-        include: { exercises: { orderBy: { order: "asc" } } },
+        include: sessionsInclude,
         orderBy: { date: "asc" },
       });
     }),
@@ -36,7 +43,7 @@ export const workoutDayRouter = createTRPCRouter({
         where: { userId_date: { userId: ctx.session.user.id, date } },
         create: { date, userId: ctx.session.user.id, ...rest },
         update: rest,
-        include: { exercises: { orderBy: { order: "asc" } } },
+        include: sessionsInclude,
       });
     }),
 
@@ -54,7 +61,7 @@ export const workoutDayRouter = createTRPCRouter({
         where: { userId_date: { userId: ctx.session.user.id, date } },
         create: { date, userId: ctx.session.user.id, completed, workoutType: "other" },
         update: { completed },
-        include: { exercises: { orderBy: { order: "asc" } } },
+        include: sessionsInclude,
       });
     }),
 });

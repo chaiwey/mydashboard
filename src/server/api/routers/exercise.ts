@@ -6,14 +6,13 @@ const exerciseInput = z.object({
   sets: z.number().int().positive().optional(),
   reps: z.number().int().positive().optional(),
   weightLbs: z.number().min(0).optional(),
-  durationMin: z.number().int().min(0).optional(),
 });
 
 export const exerciseRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(exerciseInput.extend({ workoutDayId: z.string() }))
+    .input(exerciseInput.extend({ sessionId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const count = await ctx.db.exercise.count({ where: { workoutDayId: input.workoutDayId } });
+      const count = await ctx.db.exercise.count({ where: { sessionId: input.sessionId } });
       return ctx.db.exercise.create({ data: { ...input, order: count } });
     }),
 
@@ -21,14 +20,11 @@ export const exerciseRouter = createTRPCRouter({
     .input(exerciseInput.partial().extend({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
-      // Verify ownership via workoutDay
       const exercise = await ctx.db.exercise.findFirst({
         where: { id },
-        include: { workoutDay: { select: { userId: true } } },
+        include: { session: { include: { workoutDay: { select: { userId: true } } } } },
       });
-      if (exercise?.workoutDay.userId !== ctx.session.user.id) {
-        throw new Error("Not found");
-      }
+      if (exercise?.session.workoutDay.userId !== ctx.session.user.id) throw new Error("Not found");
       return ctx.db.exercise.update({ where: { id }, data });
     }),
 
@@ -37,11 +33,9 @@ export const exerciseRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const exercise = await ctx.db.exercise.findFirst({
         where: { id: input.id },
-        include: { workoutDay: { select: { userId: true } } },
+        include: { session: { include: { workoutDay: { select: { userId: true } } } } },
       });
-      if (exercise?.workoutDay.userId !== ctx.session.user.id) {
-        throw new Error("Not found");
-      }
+      if (exercise?.session.workoutDay.userId !== ctx.session.user.id) throw new Error("Not found");
       return ctx.db.exercise.delete({ where: { id: input.id } });
     }),
 });

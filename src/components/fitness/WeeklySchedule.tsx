@@ -33,11 +33,10 @@ export function WeeklySchedule() {
     (workoutDays ?? []).map((wd) => [toKey(new Date(wd.date as Date)), wd])
   );
 
-  const totalMinutes = (workoutDays ?? []).reduce(
-    (sum, wd) => sum + wd.exercises.reduce((s, ex) => s + (ex.durationMin ?? 0), 0),
+  const totalHours = (workoutDays ?? []).reduce(
+    (sum, wd) => sum + wd.sessions.reduce((s, sess) => s + sess.durationHours, 0),
     0
   );
-  const totalHours = totalMinutes / 60;
   const barPct = Math.min((totalHours / 10) * 100, 100);
 
   const prevWeek = () => setWeekStart((w: Date) => addDays(w, -7));

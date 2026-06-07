@@ -54,13 +54,13 @@ function ToolbarBtn({
   );
 }
 
-interface Props {
+export interface JournalEditorProps {
   entry?: JournalEntry;
   date: DateSelection;
   onClose: () => void;
 }
 
-export function JournalEditor({ entry, date, onClose }: Props) {
+export function JournalEditor({ entry, date, onClose }: JournalEditorProps) {
   const utils = api.useUtils();
   const { data: categories } = api.journalCategory.list.useQuery();
 

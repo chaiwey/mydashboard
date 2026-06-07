@@ -1,10 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { api } from "@/trpc/react";
 import { JournalCalendar, type DateSelection } from "@/components/journal/JournalCalendar";
 import { JournalEntryCard, type JournalEntry } from "@/components/journal/JournalEntryCard";
-import { JournalEditor } from "@/components/journal/JournalEditor";
+import type { JournalEditorProps } from "@/components/journal/JournalEditor";
+
+// Tiptap accesses browser APIs during module init — keep it out of SSR
+const JournalEditor = dynamic<JournalEditorProps>(
+  () => import("@/components/journal/JournalEditor").then((m) => ({ default: m.JournalEditor })),
+  { ssr: false }
+);
 
 function todaySelection(): DateSelection {
   const t = new Date();
