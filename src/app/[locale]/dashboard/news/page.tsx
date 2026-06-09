@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { generateBriefing, type NewsArticle } from "@/server/api/routers/news";
+import { generateBriefing, type NewsArticle } from "@/lib/news-briefing";
 import { useState } from "react";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
