@@ -27,6 +27,45 @@ export const foodLogRouter = createTRPCRouter({
       });
     }),
 
+  calorieStreak: protectedProcedure.query(async ({ ctx }) => {
+    const goal = await ctx.db.nutritionGoal.findUnique({ where: { userId: ctx.session.user.id } });
+    const calorieGoal = goal?.calorieGoal ?? 2000;
+
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setUTCDate(ninetyDaysAgo.getUTCDate() - 90);
+    ninetyDaysAgo.setUTCHours(0, 0, 0, 0);
+
+    const logs = await ctx.db.foodLog.findMany({
+      where: { userId: ctx.session.user.id, date: { gte: ninetyDaysAgo } },
+      select: { date: true, calories: true },
+    });
+
+    const byDate = new Map<string, number>();
+    for (const log of logs) {
+      const key = `${log.date.getUTCFullYear()}-${log.date.getUTCMonth()}-${log.date.getUTCDate()}`;
+      byDate.set(key, (byDate.get(key) ?? 0) + log.calories);
+    }
+
+    let streak = 0;
+    const todayUTC = new Date();
+    todayUTC.setUTCHours(0, 0, 0, 0);
+
+    for (let i = 0; i < 90; i++) {
+      const d = new Date(todayUTC.getTime() - i * 86_400_000);
+      const key = `${d.getUTCFullYear()}-${d.getUTCMonth()}-${d.getUTCDate()}`;
+      const dayTotal = byDate.get(key);
+
+      if (dayTotal === undefined) {
+        if (i === 0) continue; // today not yet logged — don't break streak
+        break;
+      }
+      if (dayTotal >= calorieGoal) break;
+      streak++;
+    }
+
+    return { streak };
+  }),
+
   create: protectedProcedure
     .input(logInput.extend({ year: z.number(), month: z.number(), day: z.number() }))
     .mutation(async ({ ctx, input }) => {

@@ -14,14 +14,15 @@ export type DateSelection = { year: number; month: number; day: number };
 interface Props {
   selectedDate: DateSelection;
   onSelectDate: (d: DateSelection) => void;
+  isPrivate?: boolean;
 }
 
-export function JournalCalendar({ selectedDate, onSelectDate }: Props) {
+export function JournalCalendar({ selectedDate, onSelectDate, isPrivate = false }: Props) {
   const [viewYear, setViewYear] = useState(selectedDate.year);
   const [viewMonth, setViewMonth] = useState(selectedDate.month);
 
   const { data: datesWithEntries } = api.journalEntry.listDates.useQuery(
-    { year: viewYear, month: viewMonth },
+    { year: viewYear, month: viewMonth, isPrivate },
     { staleTime: 30_000 }
   );
   const entrySet = new Set(datesWithEntries ?? []);

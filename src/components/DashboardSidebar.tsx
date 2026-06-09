@@ -77,6 +77,10 @@ export function DashboardSidebar({ locale, userEmail }: Props) {
         <p className="px-3 pt-4 pb-1 text-xs uppercase tracking-widest" style={{ color: "var(--color-muted)", opacity: 0.5 }}>Health</p>
         {navLink({ label: "Fitness Tracker", href: `/${locale}/dashboard/fitness` })}
 
+        {/* News */}
+        <p className="px-3 pt-4 pb-1 text-xs uppercase tracking-widest" style={{ color: "var(--color-muted)", opacity: 0.5 }}>News</p>
+        {navLink({ label: "Top News", href: `/${locale}/dashboard/news` })}
+
       </nav>
 
       <div className="px-3 pb-4 pt-3 space-y-2" style={{ borderTop: "1px solid var(--color-border-subtle)" }}>

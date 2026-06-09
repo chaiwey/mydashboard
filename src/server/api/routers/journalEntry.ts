@@ -11,26 +11,26 @@ function toDateString(d: Date) {
 
 export const journalEntryRouter = createTRPCRouter({
   list: protectedProcedure
-    .input(z.object({ year: z.number(), month: z.number(), day: z.number() }))
+    .input(z.object({ year: z.number(), month: z.number(), day: z.number(), isPrivate: z.boolean().default(false) }))
     .query(async ({ ctx, input }) => {
-      const { year, month, day } = input;
+      const { year, month, day, isPrivate } = input;
       const from = utcDate(year, month, day);
       const to = utcDate(year, month, day + 1);
       return ctx.db.journalEntry.findMany({
-        where: { userId: ctx.session.user.id, entryDate: { gte: from, lt: to } },
+        where: { userId: ctx.session.user.id, entryDate: { gte: from, lt: to }, isPrivate },
         include: { category: true },
         orderBy: { createdAt: "asc" },
       });
     }),
 
   listDates: protectedProcedure
-    .input(z.object({ year: z.number(), month: z.number() }))
+    .input(z.object({ year: z.number(), month: z.number(), isPrivate: z.boolean().default(false) }))
     .query(async ({ ctx, input }) => {
-      const { year, month } = input;
+      const { year, month, isPrivate } = input;
       const from = utcDate(year, month, 1);
       const to = utcDate(year, month + 1, 1);
       const entries = await ctx.db.journalEntry.findMany({
-        where: { userId: ctx.session.user.id, entryDate: { gte: from, lt: to } },
+        where: { userId: ctx.session.user.id, entryDate: { gte: from, lt: to }, isPrivate },
         select: { entryDate: true },
       });
       const seen = new Set<string>();
@@ -51,6 +51,7 @@ export const journalEntryRouter = createTRPCRouter({
         month: z.number(),
         day: z.number(),
         categoryId: z.string().optional(),
+        isPrivate: z.boolean().default(false),
       })
     )
     .mutation(async ({ ctx, input }) => {

@@ -58,9 +58,10 @@ export interface JournalEditorProps {
   entry?: JournalEntry;
   date: DateSelection;
   onClose: () => void;
+  isPrivate?: boolean;
 }
 
-export function JournalEditor({ entry, date, onClose }: JournalEditorProps) {
+export function JournalEditor({ entry, date, onClose, isPrivate = false }: JournalEditorProps) {
   const utils = api.useUtils();
   const { data: categories } = api.journalCategory.list.useQuery();
 
@@ -125,6 +126,7 @@ export function JournalEditor({ entry, date, onClose }: JournalEditorProps) {
         month: date.month,
         day: date.day,
         categoryId: categoryId || undefined,
+        isPrivate,
       });
     }
   };

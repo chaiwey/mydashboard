@@ -87,6 +87,7 @@ export function NutritionTracker() {
   const { data: logs } = api.foodLog.listDay.useQuery(date);
   const { data: goal } = api.nutritionGoal.get.useQuery();
   const { data: presets } = api.mealPreset.list.useQuery();
+  const { data: streakData } = api.foodLog.calorieStreak.useQuery();
 
   const calorieGoal = goal?.calorieGoal ?? 2000;
   const proteinGoal = goal?.proteinGoal ?? 150;
@@ -214,6 +215,24 @@ export function NutritionTracker() {
           </div>
           <CircleChart value={Math.round(totalPro)} max={proteinGoal} color="#6366f1" label="Protein" unit="g" />
         </div>
+
+        {/* Deficit streak */}
+        {(streakData?.streak ?? 0) > 0 && (
+          <div
+            className="flex items-center gap-3 rounded-xl px-4 py-3"
+            style={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border-subtle)" }}
+          >
+            <span className="text-xl">🔥</span>
+            <div>
+              <span className="text-sm font-semibold" style={{ color: "var(--color-foreground)" }}>
+                {streakData!.streak}-day deficit streak
+              </span>
+              <p className="text-xs mt-0.5" style={{ color: "var(--color-muted)" }}>
+                Under your calorie goal {streakData!.streak} day{streakData!.streak !== 1 ? "s" : ""} in a row
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Goal editor */}
         {showGoalEdit && (
