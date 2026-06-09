@@ -1,10 +1,11 @@
 import Parser from "rss-parser";
-import { createTRPCRouter, publicProcedure } from "../trpc";
-import type { NewsArticle } from "@/lib/news-briefing";
+import { z } from "zod";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { ALL_SOURCE_NAMES, type NewsArticle } from "@/lib/news-briefing";
 
 const parser = new Parser({ timeout: 8000 });
 
-const FEEDS = [
+const FEEDS: { name: string; url: string }[] = [
   { name: "BBC News",     url: "https://feeds.bbci.co.uk/news/rss.xml" },
   { name: "Al Jazeera",  url: "https://www.aljazeera.com/xml/rss/all.xml" },
   { name: "NPR",          url: "https://feeds.npr.org/1001/rss.xml" },
@@ -20,9 +21,28 @@ function truncate(s: string, n: number) {
 }
 
 export const newsRouter = createTRPCRouter({
-  getTopNews: publicProcedure.query(async (): Promise<NewsArticle[]> => {
+  getPreferences: protectedProcedure.query(async ({ ctx }) => {
+    const pref = await ctx.db.newsPreference.findUnique({ where: { userId: ctx.session.user.id } });
+    return { enabledSources: pref?.enabledSources ?? ALL_SOURCE_NAMES };
+  }),
+
+  setPreferences: protectedProcedure
+    .input(z.object({ enabledSources: z.array(z.string()).min(1) }))
+    .mutation(({ ctx, input }) =>
+      ctx.db.newsPreference.upsert({
+        where: { userId: ctx.session.user.id },
+        create: { userId: ctx.session.user.id, enabledSources: input.enabledSources },
+        update: { enabledSources: input.enabledSources },
+      })
+    ),
+
+  getTopNews: protectedProcedure.query(async ({ ctx }): Promise<NewsArticle[]> => {
+    const pref = await ctx.db.newsPreference.findUnique({ where: { userId: ctx.session.user.id } });
+    const enabled = new Set(pref?.enabledSources ?? ALL_SOURCE_NAMES);
+    const activeFeed = FEEDS.filter((f) => enabled.has(f.name));
+
     const results = await Promise.allSettled(
-      FEEDS.map(async ({ name, url }) => {
+      activeFeed.map(async ({ name, url }) => {
         const feed = await parser.parseURL(url);
         return feed.items.slice(0, 12).map((item): NewsArticle => ({
           title: stripHtml(item.title ?? ""),

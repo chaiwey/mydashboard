@@ -24,6 +24,7 @@ model User {
   nutritionGoal     NutritionGoal?
   mealPresets       MealPreset[]
   userPin           UserPin?
+  newsPreference    NewsPreference?
   createdAt         DateTime             @default(now())
 }
 
@@ -196,6 +197,14 @@ model MealPreset {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+}
+
+model NewsPreference {
+  id             String   @id @default(cuid())
+  enabledSources String[]
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  updatedAt      DateTime @updatedAt
 }
 
 model NotificationSchedule {

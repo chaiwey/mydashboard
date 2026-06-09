@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { generateBriefing, type NewsArticle } from "@/lib/news-briefing";
+import { generateBriefing, type NewsArticle, ALL_SOURCE_NAMES, SOURCE_COLORS } from "@/lib/news-briefing";
 import { useState } from "react";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -17,12 +17,6 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(hr / 24)}d ago`;
 }
 
-const SOURCE_COLORS: Record<string, string> = {
-  "BBC News":     "#bb1919",
-  "Al Jazeera":  "#c8a200",
-  "NPR":          "#1a6b2b",
-  "The Guardian": "#0d47a1",
-};
 
 // ── Daily Briefing ────────────────────────────────────────────────────────────
 
@@ -155,6 +149,23 @@ function SkeletonCard() {
 const FIFTEEN_MIN = 15 * 60 * 1000;
 
 export default function NewsPage() {
+  const utils = api.useUtils();
+
+  const { data: prefs } = api.news.getPreferences.useQuery();
+  const enabledSources = prefs?.enabledSources ?? [...ALL_SOURCE_NAMES];
+
+  const setPreferences = api.news.setPreferences.useMutation({
+    onSuccess: () => void utils.news.getTopNews.invalidate(),
+  });
+
+  const toggleSource = (name: string) => {
+    const next = enabledSources.includes(name)
+      ? enabledSources.filter((s) => s !== name)
+      : [...enabledSources, name];
+    if (next.length === 0) return;
+    setPreferences.mutate({ enabledSources: next });
+  };
+
   const { data: articles, isLoading, isError, dataUpdatedAt, refetch } = api.news.getTopNews.useQuery(undefined, {
     refetchInterval: FIFTEEN_MIN,
     staleTime: FIFTEEN_MIN,
@@ -191,6 +202,35 @@ export default function NewsPage() {
           </svg>
           Refresh
         </button>
+      </div>
+
+      {/* Source toggles */}
+      <div className="flex flex-wrap gap-2">
+        {ALL_SOURCE_NAMES.map((name) => {
+          const active = enabledSources.includes(name);
+          const color = SOURCE_COLORS[name] ?? "#64748b";
+          const isLast = active && enabledSources.length === 1;
+          return (
+            <button
+              key={name}
+              onClick={() => toggleSource(name)}
+              disabled={isLast || setPreferences.isPending}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all disabled:opacity-40"
+              style={{
+                background: active ? color + "18" : "var(--color-surface-raised)",
+                color: active ? color : "var(--color-muted)",
+                border: `1px solid ${active ? color + "55" : "var(--color-border)"}`,
+              }}
+              title={isLast ? "At least one source must be enabled" : undefined}
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ background: active ? color : "var(--color-border)" }}
+              />
+              {name}
+            </button>
+          );
+        })}
       </div>
 
       {/* Daily Briefing */}

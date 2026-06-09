@@ -1,3 +1,13 @@
+export const ALL_SOURCE_NAMES = ["BBC News", "Al Jazeera", "NPR", "The Guardian"] as const;
+export type SourceName = (typeof ALL_SOURCE_NAMES)[number];
+
+export const SOURCE_COLORS: Record<string, string> = {
+  "BBC News":    "#bb1919",
+  "Al Jazeera": "#c8a200",
+  "NPR":         "#1a6b2b",
+  "The Guardian":"#0d47a1",
+};
+
 export type NewsArticle = {
   title: string;
   description: string;
