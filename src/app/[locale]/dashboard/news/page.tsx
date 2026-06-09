@@ -155,7 +155,16 @@ export default function NewsPage() {
   const enabledSources = prefs?.enabledSources ?? [...ALL_SOURCE_NAMES];
 
   const setPreferences = api.news.setPreferences.useMutation({
-    onSuccess: () => void utils.news.getTopNews.invalidate(),
+    onMutate: ({ enabledSources }) => {
+      utils.news.getPreferences.setData(undefined, { enabledSources });
+    },
+    onSuccess: () => {
+      void utils.news.getPreferences.invalidate();
+      void utils.news.getTopNews.invalidate();
+    },
+    onError: () => {
+      void utils.news.getPreferences.invalidate();
+    },
   });
 
   const toggleSource = (name: string) => {

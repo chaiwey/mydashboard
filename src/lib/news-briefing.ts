@@ -1,4 +1,4 @@
-export const ALL_SOURCE_NAMES = ["BBC News", "Al Jazeera", "NPR", "The Guardian"] as const;
+export const ALL_SOURCE_NAMES = ["BBC News", "Al Jazeera", "NPR", "The Guardian", "NYT", "Fox News"] as const;
 export type SourceName = (typeof ALL_SOURCE_NAMES)[number];
 
 export const SOURCE_COLORS: Record<string, string> = {
@@ -6,6 +6,8 @@ export const SOURCE_COLORS: Record<string, string> = {
   "Al Jazeera": "#c8a200",
   "NPR":         "#1a6b2b",
   "The Guardian":"#0d47a1",
+  "NYT":         "#111111",
+  "Fox News":    "#003366",
 };
 
 export type NewsArticle = {
@@ -15,6 +17,40 @@ export type NewsArticle = {
   pubDate: string;
   source: string;
 };
+
+// ── Deduplication ─────────────────────────────────────────────────────────────
+
+const STOP_WORDS = new Set([
+  "a","an","the","is","in","on","at","to","for","of","and","or","but","as",
+  "with","by","from","up","about","into","over","after","says","said","say",
+  "will","has","have","had","be","been","was","were","are","its","this","that",
+  "their","they","new","amid","after","after","over","under","more","than","two",
+  "what","who","how","when","where","why","amid","than","also","like","just",
+]);
+
+function keyWords(title: string): string[] {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .split(/\s+/)
+    .filter((w) => w.length > 3 && !STOP_WORDS.has(w));
+}
+
+export function deduplicateArticles(articles: NewsArticle[]): NewsArticle[] {
+  const kept: string[][] = [];
+  return articles.filter((article) => {
+    const words = keyWords(article.title);
+    if (words.length === 0) return true;
+    for (const seenWords of kept) {
+      const overlap = words.filter((w) => seenWords.includes(w)).length;
+      if (overlap >= 3) return false;
+    }
+    kept.push(words);
+    return true;
+  });
+}
+
+// ── Daily Briefing ────────────────────────────────────────────────────────────
 
 function detectCategory(title: string): string {
   const t = title.toLowerCase();
