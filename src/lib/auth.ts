@@ -19,8 +19,8 @@ export const authOptions: NextAuthOptions = {
           console.log(`\n🔑 SIGN-IN LINK for ${email}:\n${url}\n`);
           return;
         }
-        await getResend().emails.send({
-          from: "Dashboard <noreply@yourdomain.com>",
+        const { error } = await getResend().emails.send({
+          from: process.env.EMAIL_FROM ?? "onboarding@resend.dev",
           to: email,
           subject: "Sign in to Dashboard",
           html: `
@@ -36,6 +36,9 @@ export const authOptions: NextAuthOptions = {
             </div>
           `,
         });
+        if (error) {
+          throw new Error(`Resend failed to send sign-in email: ${error.message}`);
+        }
       },
     }),
   ],
