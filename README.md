@@ -29,8 +29,38 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Local development database
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+docker compose -f docker-compose.dev.yml up -d   # Postgres on localhost:5432
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deploy with Docker / Dokploy
+
+The production stack is defined in `docker-compose.yml` (Postgres + a one-shot
+migration job + the app) and built from the multi-stage `Dockerfile`
+(`output: "standalone"` for a lean ~330 MB image).
+
+1. In Dokploy, create a **Compose** application pointing at this repo.
+2. Copy the variables from `.env.dokploy.example` into Dokploy's **Environment**
+   panel and fill in real values (secrets: `openssl rand -base64 32`; VAPID:
+   `npx web-push generate-vapid-keys`).
+3. Add a domain in Dokploy pointing to the `app` service on port `3000`.
+4. Deploy. On each deploy the `migrate` service runs `prisma migrate deploy`
+   before the app starts.
+
+> **Note:** `NEXT_PUBLIC_VAPID_PUBLIC_KEY` is baked into the client bundle at
+> build time (must equal `VAPID_PUBLIC_KEY`); changing it requires a rebuild.
+
+The `/api/cron` endpoint (push-notification dispatch) is not scheduled by the
+stack — point any external scheduler at `POST /api/cron` with the header
+`Authorization: Bearer $CRON_SECRET`.
+
+To run the production stack locally:
+
+```bash
+cp .env.dokploy.example .env
+docker network create dokploy-network   # or comment out that network in docker-compose.yml
+docker compose up --build
+```

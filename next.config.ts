@@ -17,6 +17,9 @@ const withPWA = withPWAInit({
   },
 });
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  // Produce a self-contained build (.next/standalone) for a lean Docker image.
+  output: "standalone",
+};
 
 export default withNextIntl(withPWA(nextConfig));
